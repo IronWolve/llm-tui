@@ -1,0 +1,397 @@
+{
+  "app": {"brand": "DEMO", "online": false},
+  "profiles": [
+    {
+      "id": 1,
+      "name": "Example Text checkpoint, medium effort",
+      "short_name": "Example Text",
+      "served_id": "example-text-98304",
+      "group": "MODEL: Example Text 8B, 98304",
+      "recommended": true,
+      "badge": "NOT YET BOOTED",
+      "details": [
+        ["Effort", "medium"],
+        ["Context", "98304"],
+        ["HF link", "https://huggingface.co/example-org/example-text"],
+        ["API URL", "http://127.0.0.1:8080/v1"]
+      ],
+      "compact_sections": [
+        [
+          ["Model", "example-org \\ example-text"],
+          ["HF link", "https://huggingface.co/example-org/example-text"],
+          ["Quant", "Q4_K_M, 4.8 bpw, example-org"],
+          ["Weights", "example-text-Q4_K_M.gguf, 5 GiB on disk"]
+        ],
+        [
+          ["Context", "98304, 1 slot"],
+          ["VRAM / RAM", "budget 12 GiB, RAM unmeasured"],
+          ["KV cache", "q8_0"],
+          ["Performance", "unmeasured"]
+        ],
+        [
+          ["API URL", "http://127.0.0.1:8080/v1"],
+          ["Template", "checkpoint default, example-text.jinja, 4 KiB"],
+          ["Model id", "example-text-98304"],
+          ["Sampling", "temperature 0.6, top_p 0.95"],
+          ["Reasoning", "thinking on, medium"]
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Example Text 8B, Workbench template",
+      "short_name": "Workbench",
+      "served_id": "example-text-98304-workbench",
+      "group": "MODEL: Example Text 8B, 98304",
+      "badge": "NOT YET BOOTED",
+      "details": [
+        ["Effort", "high"],
+        ["Context", "98304"],
+        ["HF link", "https://huggingface.co/example-org/example-text"],
+        ["API URL", "http://127.0.0.1:8080/v1"]
+      ],
+      "compact_sections": [
+        [
+          ["Model", "example-org \\ example-text"],
+          ["HF link", "https://huggingface.co/example-org/example-text"],
+          ["Quant", "Q4_K_M, 4.8 bpw, example-org"],
+          ["Weights", "example-text-Q4_K_M.gguf, 5 GiB on disk"]
+        ],
+        [
+          ["Context", "98304, 1 slot"],
+          ["VRAM / RAM", "budget 12 GiB, RAM unmeasured"],
+          ["KV cache", "q8_0"],
+          ["Performance", "unmeasured"]
+        ],
+        [
+          ["API URL", "http://127.0.0.1:8080/v1"],
+          ["Template", "Workbench example v2, workbench-example.jinja, 5 KiB"],
+          ["Model id", "example-text-98304-workbench"],
+          ["Sampling", "temperature 0.6, top_p 0.95"],
+          ["Reasoning", "thinking on, high"]
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Example Text 8B, Q5_K_M weights",
+      "short_name": "Q5_K_M",
+      "served_id": "example-text-98304-q5",
+      "group": "MODEL: Example Text 8B, 98304",
+      "badge": "NOT YET BOOTED",
+      "details": [
+        ["Effort", "medium"],
+        ["Context", "98304"],
+        ["HF link", "https://huggingface.co/example-org/example-text"],
+        ["API URL", "http://127.0.0.1:8080/v1"]
+      ],
+      "compact_sections": [
+        [
+          ["Model", "example-org \\ example-text"],
+          ["HF link", "https://huggingface.co/example-org/example-text"],
+          ["Quant", "Q5_K_M, 5.7 bpw, example-org"],
+          ["Weights", "example-text-Q5_K_M.gguf, 6 GiB on disk"]
+        ],
+        [
+          ["Context", "98304, 1 slot"],
+          ["VRAM / RAM", "budget 12 GiB, RAM unmeasured"],
+          ["KV cache", "q8_0"],
+          ["Performance", "unmeasured"]
+        ],
+        [
+          ["API URL", "http://127.0.0.1:8080/v1"],
+          ["Template", "checkpoint default, example-text.jinja, 4 KiB"],
+          ["Model id", "example-text-98304-q5"],
+          ["Sampling", "temperature 0.6, top_p 0.95"],
+          ["Reasoning", "thinking on, medium"]
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Example Coder 32B, checkpoint template",
+      "short_name": "Coder native",
+      "served_id": "example-coder-32b-fp8-131072-4",
+      "group": "MODEL: Example Coder 32B, 131072",
+      "group_suffix": "DFLASH (7)",
+      "badge": "NOT YET BOOTED",
+      "details": [
+        ["Effort", "high"],
+        ["Draft style", "DFLASH (7)"],
+        ["Context", "131072"],
+        ["HF link", "https://huggingface.co/example-org/example-coder-32b-fp8"],
+        ["API URL", "http://127.0.0.1:8080/v1"]
+      ],
+      "compact_sections": [
+        [
+          ["Model", "example-org \\ example-coder-32b-fp8"],
+          ["HF link", "https://huggingface.co/example-org/example-coder-32b-fp8"],
+          ["Base model", "Example Coder 32B, 64 blocks, native 131072"],
+          ["Weights", "safetensors, 33 GiB on disk"],
+          ["Draft", "Example Coder DFlash, DFLASH (7), safetensors, 490 MiB"]
+        ],
+        [
+          ["Context", "131072, 1 slot"],
+          ["VRAM / RAM", "GPU budget 40 GiB, host RAM unmeasured"],
+          ["Batch / CPU", "8192 tokens, 12 threads"],
+          ["Attention", "FlashAttention, CUDA graphs"],
+          ["Quant / KV", "FP8 weights, FP8 KV"],
+          ["Runtime", "demo vLLM build"],
+          ["Performance", "unmeasured"]
+        ],
+        [
+          ["API URL", "http://127.0.0.1:8080/v1"],
+          ["Model id", "example-coder-32b-fp8-131072-4"],
+          ["Template", "checkpoint default, coder.jinja, 5 KiB"],
+          ["Sampling", "temperature 0.6, top_p 0.95, top_k 40"],
+          ["Reasoning", "thinking on, high, tool calls"]
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Example Coder 32B, Workbench template",
+      "short_name": "Coder Workbench",
+      "served_id": "example-coder-32b-fp8-131072-5",
+      "group": "MODEL: Example Coder 32B, 131072",
+      "group_suffix": "DFLASH (7)",
+      "badge": "NOT YET BOOTED",
+      "details": [
+        ["Effort", "xhigh"],
+        ["Draft style", "DFLASH (7)"],
+        ["Context", "131072"],
+        ["HF link", "https://huggingface.co/example-org/example-coder-32b-fp8"],
+        ["API URL", "http://127.0.0.1:8080/v1"]
+      ],
+      "compact_sections": [
+        [
+          ["Model", "example-org \\ example-coder-32b-fp8"],
+          ["HF link", "https://huggingface.co/example-org/example-coder-32b-fp8"],
+          ["Base model", "Example Coder 32B, 64 blocks, native 131072"],
+          ["Weights", "safetensors, 33 GiB on disk"],
+          ["Draft", "Example Coder DFlash, DFLASH (7), safetensors, 490 MiB"]
+        ],
+        [
+          ["Context", "131072, 1 slot"],
+          ["VRAM / RAM", "GPU budget 40 GiB, host RAM unmeasured"],
+          ["Batch / CPU", "8192 tokens, 12 threads"],
+          ["Attention", "FlashAttention, CUDA graphs"],
+          ["Quant / KV", "FP8 weights, FP8 KV"],
+          ["Runtime", "demo vLLM build"],
+          ["Performance", "unmeasured"]
+        ],
+        [
+          ["API URL", "http://127.0.0.1:8080/v1"],
+          ["Model id", "example-coder-32b-fp8-131072-5"],
+          ["Template", "Workbench example v2, workbench-example.jinja, 5 KiB"],
+          ["Sampling", "temperature 0.6, top_p 0.95, top_k 40"],
+          ["Reasoning", "thinking on, xhigh, tool calls"]
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Example MoE 30B, Q4_K_M all GPU",
+      "short_name": "Q4_K_M GPU",
+      "served_id": "example-moe-30b-q4-k-m-262144-6",
+      "group": "MODEL: Example MoE 30B, 262144",
+      "group_suffix": "",
+      "badge": "NOT YET BOOTED",
+      "details": [
+        ["Effort", "medium"],
+        ["Draft style", "off"],
+        ["Context", "262144"],
+        ["HF link", "https://huggingface.co/example-org/example-moe-30b-q4-k-m"],
+        ["API URL", "http://127.0.0.1:8080/v1"]
+      ],
+      "compact_sections": [
+        [
+          ["Model", "example-org \\ example-moe-30b-q4-k-m"],
+          ["HF link", "https://huggingface.co/example-org/example-moe-30b-q4-k-m"],
+          ["Base model", "Example MoE 30B-A3B, 48 blocks, native 262144"],
+          ["Quant", "Q4_K_M, 4.8 bpw, example-org"],
+          ["Weights", "example-moe-Q4_K_M.gguf, 17 GiB on disk"]
+        ],
+        [
+          ["Context", "262144, 1 slot"],
+          ["VRAM / RAM", "GPU budget 18 GiB, host RAM unmeasured"],
+          ["Experts", "GPU residency configured"],
+          ["KV cache", "q8_0"],
+          ["Runtime", "demo GGUF build"],
+          ["Performance", "unmeasured"]
+        ],
+        [
+          ["API URL", "http://127.0.0.1:8080/v1"],
+          ["Model id", "example-moe-30b-q4-k-m-262144-6"],
+          ["Template", "checkpoint default, expert-chat.jinja, 4 KiB"],
+          ["Sampling", "temperature 0.6, top_p 0.95, top_k 40"],
+          ["Reasoning", "thinking on, medium, tool calls"]
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Example MoE 30B, IQ3_S with expert offload",
+      "short_name": "IQ3_S offload",
+      "served_id": "example-moe-30b-iq3-s-262144-7",
+      "group": "MODEL: Example MoE 30B, 262144",
+      "group_suffix": "",
+      "badge": "NOT YET BOOTED",
+      "details": [
+        ["Effort", "medium"],
+        ["Draft style", "off"],
+        ["Context", "262144"],
+        ["HF link", "https://huggingface.co/example-org/example-moe-30b-iq3-s"],
+        ["API URL", "http://127.0.0.1:8080/v1"]
+      ],
+      "compact_sections": [
+        [
+          ["Model", "example-org \\ example-moe-30b-iq3-s"],
+          ["HF link", "https://huggingface.co/example-org/example-moe-30b-iq3-s"],
+          ["Base model", "Example MoE 30B-A3B, 48 blocks, native 262144"],
+          ["Quant", "IQ3_S, 3.5 bpw, example-org"],
+          ["Weights", "example-moe-IQ3_S.gguf, 13 GiB on disk"]
+        ],
+        [
+          ["Context", "262144, 1 slot"],
+          ["VRAM / RAM", "GPU budget 18 GiB, host RAM unmeasured"],
+          ["Experts", "CPU expert offload configured"],
+          ["KV cache", "q8_0"],
+          ["Runtime", "demo GGUF build"],
+          ["Performance", "unmeasured"]
+        ],
+        [
+          ["API URL", "http://127.0.0.1:8080/v1"],
+          ["Model id", "example-moe-30b-iq3-s-262144-7"],
+          ["Template", "checkpoint default, expert-chat.jinja, 4 KiB"],
+          ["Sampling", "temperature 0.6, top_p 0.95, top_k 40"],
+          ["Reasoning", "thinking on, medium, tool calls"]
+        ]
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Example Vision checkpoint with MTP",
+      "short_name": "Example Vision",
+      "served_id": "example-vision-49152-mtp",
+      "group": "MODEL: Example Vision 12B, 98304 / 49152 vision",
+      "group_suffix": "MTP (3)",
+      "badge": "VISION+MTP",
+      "details": [
+        ["Effort", "high"],
+        ["Vision", "on, default"],
+        ["Draft style", "MTP (3)"],
+        ["Context", "49152"],
+        ["HF link", "https://huggingface.co/example-org/example-vision"],
+        ["API URL", "http://127.0.0.1:8080/v1"]
+      ],
+      "compact_sections": [
+        [
+          ["Model", "example-org \\ example-vision"],
+          ["HF link", "https://huggingface.co/example-org/example-vision"],
+          ["Base model", "Example Vision 12B, 40 blocks, native 98304"],
+          ["Weights", "safetensors, 9 GiB on disk, 180 FP8 tensors"],
+          ["Draft", "checkpoint MTP (3), example-mtp.safetensors, 420 MiB"],
+          ["Vision", "on, default"],
+          ["Projector", "example-projector.safetensors, 310 MiB"]
+        ],
+        [
+          ["Context", "49152, 1 slot"],
+          ["VRAM / RAM", "budget 16 GiB, RAM unmeasured"],
+          ["Runtime", "demo build"],
+          ["Performance", "68 tok/s decode (61-74), 1.4 s cached TTFT, 49152 input, n=5, synthetic"]
+        ],
+        [
+          ["API URL", "http://127.0.0.1:8080/v1"],
+          ["Template", "checkpoint default, example-vision.jinja, 6 KiB"],
+          ["Model id", "example-vision-49152-mtp"],
+          ["Aliases", "example-vision"],
+          ["Sampling", "temperature 0.6, top_p 0.95"],
+          ["Reasoning", "thinking on, high"]
+        ]
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Example Vision 12B, Workbench template",
+      "short_name": "Vision Workbench",
+      "served_id": "example-vision-49152-mtp-workbench",
+      "group": "MODEL: Example Vision 12B, 98304 / 49152 vision",
+      "group_suffix": "MTP (3)",
+      "badge": "VISION+MTP",
+      "details": [
+        ["Effort", "medium"],
+        ["Vision", "on, default"],
+        ["Draft style", "MTP (3)"],
+        ["Context", "49152"],
+        ["HF link", "https://huggingface.co/example-org/example-vision"],
+        ["API URL", "http://127.0.0.1:8080/v1"]
+      ],
+      "compact_sections": [
+        [
+          ["Model", "example-org \\ example-vision"],
+          ["HF link", "https://huggingface.co/example-org/example-vision"],
+          ["Base model", "Example Vision 12B, 40 blocks, native 98304"],
+          ["Weights", "safetensors, 9 GiB on disk, 180 FP8 tensors"],
+          ["Draft", "checkpoint MTP (3), example-mtp.safetensors, 420 MiB"],
+          ["Vision", "on, default"],
+          ["Projector", "example-projector.safetensors, 310 MiB"]
+        ],
+        [
+          ["Context", "49152, 1 slot"],
+          ["VRAM / RAM", "budget 16 GiB, RAM unmeasured"],
+          ["Runtime", "demo build"],
+          ["Performance", "unmeasured"]
+        ],
+        [
+          ["API URL", "http://127.0.0.1:8080/v1"],
+          ["Template", "Workbench example v2, workbench-example.jinja, 5 KiB"],
+          ["Model id", "example-vision-49152-mtp-workbench"],
+          ["Aliases", "example-vision"],
+          ["Sampling", "temperature 0.6, top_p 0.95"],
+          ["Reasoning", "thinking on, medium"]
+        ]
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Example Vision 12B, text only",
+      "short_name": "Text MTP",
+      "served_id": "example-vision-98304-mtp-text",
+      "group": "MODEL: Example Vision 12B, 98304 / 49152 vision",
+      "group_suffix": "MTP (3)",
+      "badge": "NOT YET BOOTED",
+      "details": [
+        ["Effort", "high"],
+        ["Vision", "off"],
+        ["Draft style", "MTP (3)"],
+        ["Context", "98304"],
+        ["HF link", "https://huggingface.co/example-org/example-vision"],
+        ["API URL", "http://127.0.0.1:8080/v1"]
+      ],
+      "compact_sections": [
+        [
+          ["Model", "example-org \\ example-vision"],
+          ["HF link", "https://huggingface.co/example-org/example-vision"],
+          ["Base model", "Example Vision 12B, 40 blocks, native 98304"],
+          ["Weights", "safetensors, 9 GiB on disk, 180 FP8 tensors"],
+          ["Draft", "checkpoint MTP (3), example-mtp.safetensors, 420 MiB"]
+        ],
+        [
+          ["Context", "98304, 1 slot"],
+          ["VRAM / RAM", "budget 16 GiB, RAM unmeasured"],
+          ["Runtime", "demo build"],
+          ["Performance", "unmeasured"]
+        ],
+        [
+          ["API URL", "http://127.0.0.1:8080/v1"],
+          ["Template", "checkpoint default, example-vision.jinja, 6 KiB"],
+          ["Model id", "example-vision-98304-mtp-text"],
+          ["Aliases", "example-vision"],
+          ["Sampling", "temperature 0.6, top_p 0.95"],
+          ["Reasoning", "thinking on, high"]
+        ]
+      ]
+    }
+  ]
+}
