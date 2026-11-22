@@ -51,7 +51,7 @@ func TestFixtureLayout(t *testing.T) {
 	}
 	assertFits(t, m, screen)
 
-	pages := m.detailsPageCount()
+	pages := m.detailLayout().pageCount()
 	if pages < 2 {
 		t.Fatalf("expected overflow in test catalog, got %d detail pages", pages)
 	}
@@ -155,6 +155,64 @@ func TestPickerChoicesStayOnOneRow(t *testing.T) {
 		t.Errorf("narrow picker should shorten the label and preserve effort on one line:\n%s", picker)
 	}
 	assertFits(t, m, ansi.Strip(m.View()))
+}
+
+func TestSmallerTerminals(t *testing.T) {
+	c, err := loadCatalog("examples/catalog.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, size := range []tea.WindowSizeMsg{
+		{Width: 72, Height: 20},
+		{Width: 52, Height: 14},
+		{Width: 24, Height: 7},
+	} {
+		t.Run(fmt.Sprintf("%dx%d", size.Width, size.Height), func(t *testing.T) {
+			m := initialModel(c)
+			update := func(msg tea.Msg) {
+				next, _ := m.Update(msg)
+				m = next.(model)
+			}
+			update(size)
+			update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("12")})
+			screen := ansi.Strip(m.View())
+			for _, want := range []string{"#12", "›12", "PgDn details"} {
+				if !strings.Contains(screen, want) {
+					t.Errorf("picker missing %q:\n%s", want, screen)
+				}
+			}
+			assertFits(t, m, screen)
+
+			pages := m.detailLayout().pageCount()
+			var details []string
+			for i := 0; i < pages; i++ {
+				update(tea.KeyMsg{Type: tea.KeyPgDown})
+				screen := ansi.Strip(m.View())
+				assertFits(t, m, screen)
+				details = append(details, screen)
+			}
+			if !strings.Contains(strings.Join(details, "\n"), "Model id") {
+				t.Error("could not reach the API details")
+			}
+			for range pages {
+				update(tea.KeyMsg{Type: tea.KeyPgUp})
+			}
+			if m.detailPage != 0 || !strings.Contains(ansi.Strip(m.View()), "›12") {
+				t.Fatal("Page Up did not return to the selected choice")
+			}
+
+			update(tea.KeyMsg{Type: tea.KeyEnter})
+			review := ansi.Strip(m.View())
+			if !m.confirming || m.launch || !strings.Contains(review, "#12") {
+				t.Errorf("profile was not available for review:\n%s", review)
+			}
+			assertFits(t, m, review)
+			update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("y")})
+			if !m.launch || m.proxyOnly || m.catalog.Profiles[m.cursor].ID != 12 {
+				t.Fatal("could not confirm the selected profile")
+			}
+		})
+	}
 }
 
 func assertFits(t *testing.T, m model, screen string) {

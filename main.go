@@ -49,12 +49,12 @@ type catalog struct {
 }
 
 const (
-	version          = "1.0.1"
-	minColumns       = 80
-	minRows          = 25
-	minPickerColumns = 34
-	minDetailColumns = minColumns - minPickerColumns - 1
-	pickerRowGutter  = 5 // Selection marker, ID chip, and gap.
+	version         = "1.0.1"
+	pickerColumns   = 34
+	detailColumns   = 45
+	minSplitPicker  = 24
+	minSplitDetails = 34
+	pickerRowGutter = 5 // Selection marker, ID chip, and gap.
 )
 
 type statusMsg struct {
@@ -174,8 +174,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
-		if m.hasRoom() && m.detailPage > 0 {
-			m.detailPage = min(m.detailPage, m.detailsPageCount())
+		if m.width > 0 && m.height > 0 && m.detailPage > 0 {
+			m.detailPage = min(m.detailPage, m.detailLayout().pageCount())
 		}
 	case catalogMsg:
 		m.refreshing = false
@@ -196,9 +196,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.confirming {
 			switch key {
 			case "y", "Y", "enter":
-				if !m.hasRoom() {
-					return m, nil
-				}
 				m.launch = true
 				return m, tea.Quit
 			case "ctrl+c":
@@ -264,12 +261,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.cursor = len(m.catalog.Profiles) - 1
 			m.detailPage = 0
 		case "pgdown", "ctrl+d":
-			if m.hasRoom() {
-				m.detailPage = min(m.detailsPageCount(), m.detailPage+1)
+			if m.width > 0 {
+				m.detailPage = min(m.detailLayout().pageCount(), m.detailPage+1)
 			}
 		case "pgup", "ctrl+u":
-			if m.hasRoom() {
-				m.detailPage = max(0, min(m.detailPage, m.detailsPageCount())-1)
+			if m.width > 0 && m.detailPage > 0 {
+				m.detailPage = max(0, min(m.detailPage, m.detailLayout().pageCount())-1)
 			}
 		case "enter":
 			if m.refreshing {
@@ -352,7 +349,8 @@ func renderHeader(m model) string {
 		engine = "LLM"
 	}
 	stateChip := renderer.NewStyle().Bold(true).Foreground(dark).Background(color).Padding(0, 1).Render(state)
-	prefix := brand.Render(ansi.Truncate(engine, 16, "…")) + " " + stateChip + " " + title.Render(fmt.Sprintf("#%d", p.ID))
+	engineWidth := max(1, min(16, m.width-lipgloss.Width(stateChip)-7))
+	prefix := brand.Render(ansi.Truncate(engine, engineWidth, "…")) + " " + stateChip + " " + title.Render(fmt.Sprintf("#%d", p.ID))
 
 	var badges []string
 	if len(p.Missing) > 0 {
@@ -440,7 +438,13 @@ func pickerLabelParts(p profile) (name, effort, vision string) {
 }
 
 func pickerLabel(p profile, width int) string {
+	if width <= 0 {
+		return ""
+	}
 	name, effort, vision := pickerLabelParts(p)
+	if width < 5 {
+		return ansi.Truncate(name, width, "…")
+	}
 	suffix := vision
 	if effort != "" {
 		suffix = " " + effort + vision
@@ -456,8 +460,14 @@ func pickerLabel(p profile, width int) string {
 }
 
 func renderProfileList(m model, width, height int) string {
-	inner := width - panel.GetHorizontalFrameSize()
+	style := panel.BorderForeground(lipgloss.Color("#36586B"))
+	if height < 5 || width < 16 {
+		style = renderer.NewStyle()
+	}
+	available := height - style.GetVerticalFrameSize()
+	inner := width - style.GetHorizontalFrameSize()
 	labelWidth := inner - pickerRowGutter
+	headingLimit := min(2, available-2)
 	profiles := m.catalog.Profiles
 	choices := make([]pickerChoice, len(profiles))
 	total := 0
@@ -466,9 +476,9 @@ func renderProfileList(m model, width, height int) string {
 		choice := &choices[i]
 		if i > 0 && p.Group == profiles[i-1].Group {
 			choice.heading = choices[i-1].heading
-		} else if label := groupLabel(p); label != "" {
+		} else if label := groupLabel(p); label != "" && headingLimit > 0 {
 			style := renderer.NewStyle().Bold(true).Foreground(accent)
-			for _, line := range wrapLines(label, inner, 2) {
+			for _, line := range wrapLines(label, inner, headingLimit) {
 				choice.heading = append(choice.heading, styledText(style, line))
 			}
 			total += len(choice.heading)
@@ -484,15 +494,17 @@ func renderProfileList(m model, width, height int) string {
 		if i == m.cursor {
 			label += strings.Repeat(" ", max(0, labelWidth-lipgloss.Width(label)))
 		}
-		choice.row = marker + chip + " " + styledText(style, label)
+		choice.row = ansi.Truncate(marker+chip+" "+styledText(style, label), inner, "")
 		total++
 	}
 
-	available := height - 2
 	start := 0
 	overflow := total > available
+	showRange := overflow && available >= 3
 	if overflow {
-		available-- // Leave room for the visible profile range.
+		if showRange {
+			available--
+		}
 		start = m.cursor
 		used := len(choices[start].heading) + 1
 		for start > 0 {
@@ -523,10 +535,10 @@ func renderProfileList(m model, width, height int) string {
 		lines = append(lines, choice.row)
 		end = i + 1
 	}
-	if overflow {
-		lines = append(lines, subtitle.Render(fmt.Sprintf("%d–%d of %d", start+1, end, len(choices))))
+	if showRange {
+		lines = append(lines, subtitle.Render(ansi.Truncate(fmt.Sprintf("%d–%d of %d", start+1, end, len(choices)), inner, "…")))
 	}
-	return panel.BorderForeground(lipgloss.Color("#36586B")).Width(width - 2).Render(strings.Join(lines, "\n"))
+	return style.Width(inner + style.GetHorizontalPadding()).Render(strings.Join(lines, "\n"))
 }
 
 func detailMap(p profile) map[string]string {
@@ -555,7 +567,10 @@ func profileFacts(p profile) map[string]string {
 }
 
 func renderKV(label, value string, width, labelWidth int, accent lipgloss.Color, limit int) string {
-	valueWidth := width - labelWidth - 1
+	valueWidth := width
+	if labelWidth > 0 {
+		valueWidth -= labelWidth + 1
+	}
 	var link string
 	if label == "HF link" && strings.HasPrefix(value, "https://huggingface.co/") && renderer.ColorProfile().Name() != "Ascii" {
 		link = value
@@ -575,18 +590,29 @@ func renderKV(label, value string, width, labelWidth int, accent lipgloss.Color,
 			lines[i] = ansi.SetHyperlink(link) + lines[i] + ansi.ResetHyperlink()
 		}
 	}
+	if labelWidth == 0 {
+		return labelStyle.Render(ansi.Wrap(label, width, "")) + "\n" + strings.Join(lines, "\n")
+	}
 	return lipgloss.JoinHorizontal(lipgloss.Top, labelStyle.Render(label), " ", strings.Join(lines, "\n"))
 }
 
 func section(rows [][]string, width int, accent lipgloss.Color, limit int) string {
-	inner := width - 4
+	style := panel.BorderForeground(accent)
+	if width < 19 {
+		style = renderer.NewStyle()
+	}
+	inner := width - style.GetHorizontalFrameSize()
 	labelWidth := 8
 	for _, row := range rows {
 		if len(row) == 2 && row[1] != "" && row[0] != "Estimated Vram/Ram Usage" {
 			labelWidth = max(labelWidth, lipgloss.Width(row[0]))
 		}
 	}
-	labelWidth = min(labelWidth, inner-15)
+	if inner < 23 {
+		labelWidth = 0
+	} else {
+		labelWidth = min(labelWidth, inner-15)
+	}
 	var content []string
 	for _, row := range rows {
 		if len(row) != 2 || row[1] == "" {
@@ -605,7 +631,7 @@ func section(rows [][]string, width int, accent lipgloss.Color, limit int) strin
 	if len(content) == 0 {
 		return ""
 	}
-	return panel.BorderForeground(accent).Width(width - 2).Render(strings.Join(content, "\n"))
+	return style.Width(inner + style.GetHorizontalPadding()).Render(strings.Join(content, "\n"))
 }
 
 func displayName(p profile) string {
@@ -743,10 +769,25 @@ func renderFooter(width int, profiles []profile, page, pages int) string {
 	if lipgloss.Width(line) > width {
 		line = strings.Join(parts, " ")
 	}
+	if lipgloss.Width(line) > width {
+		short := ""
+		if pages > 0 {
+			short = parts[len(parts)-1]
+		}
+		for _, key := range []string{"Q", "↑/↓", "Enter", "0", "R"} {
+			if lipgloss.Width(short)+1+lipgloss.Width(key) <= width {
+				short = strings.TrimSpace(short + " " + keyStyle.Render(key))
+			}
+		}
+		line = short
+	}
 	return ansi.Truncate(line, width, "…")
 }
 
 func renderConfirm(m model) string {
+	if m.width < 42 {
+		return renderCompactConfirm(m)
+	}
 	p := m.catalog.Profiles[m.cursor]
 	width := min(72, m.width-8)
 	inner := width - 6
@@ -780,16 +821,67 @@ func renderConfirm(m model) string {
 	rows = append(rows, "", keyStyle.Render("Y / Enter")+" confirm   "+keyStyle.Render("N / Esc")+" back   "+keyStyle.Render("Ctrl-C")+" quit")
 	style := renderer.NewStyle().Border(border).BorderForeground(cyan).Padding(1, 2).Width(width - 2)
 	card := style.Render(strings.Join(rows, "\n"))
+	if lipgloss.Height(card) > m.height || lipgloss.Width(card) > m.width {
+		return renderCompactConfirm(m)
+	}
 	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, card)
 }
 
-func (m model) hasRoom() bool {
-	return m.width >= minColumns && m.height >= minRows
+func renderCompactConfirm(m model) string {
+	p := m.catalog.Profiles[m.cursor]
+	heading := fmt.Sprintf("Review #%d", p.ID)
+	facts := []string{displayName(p)}
+	values := profileFacts(p)
+	for _, key := range []string{"Model id", "Context", "Effort"} {
+		if value := values[key]; value != "" {
+			facts = append(facts, key+" "+value)
+		}
+	}
+	if m.proxyOnly {
+		heading = "Review status"
+		loaded := "Offline"
+		if m.status.Online {
+			loaded = "Online"
+			if m.status.Model != "" {
+				loaded += " " + m.status.Model
+			}
+		}
+		facts = []string{loaded}
+	}
+	lines := []string{title.Render(ansi.Truncate(heading, m.width, "…"))}
+	room := max(0, m.height-2)
+	for _, fact := range facts {
+		if room == 0 {
+			break
+		}
+		wrapped := wrapLines(fact, m.width, room)
+		for _, line := range wrapped {
+			lines = append(lines, styledText(valueText, line))
+		}
+		room -= len(wrapped)
+	}
+	if m.height > 1 {
+		keys := "Y confirm  Esc back"
+		if m.width < lipgloss.Width(keys) {
+			keys = "Y / Esc"
+		}
+		lines = append(lines, keyStyle.Render(ansi.Truncate(keys, m.width, "…")))
+	}
+	return strings.Join(lines, "\n")
+}
+
+func (m model) splitPanes() bool {
+	return m.width >= minSplitPicker+minSplitDetails+1 && m.height >= 8
 }
 
 func (m model) pickerWidth() int {
+	if !m.splitPanes() {
+		return m.width
+	}
+	right := min(detailColumns, max(minSplitDetails, m.width-pickerColumns-1))
+	minimum := min(pickerColumns, m.width-right-1)
 	frame := panel.GetHorizontalFrameSize()
-	inner := minPickerColumns - frame
+	inner := minimum - frame
 	for _, p := range m.catalog.Profiles {
 		name, effort, vision := pickerLabelParts(p)
 		if effort != "" {
@@ -797,63 +889,105 @@ func (m model) pickerWidth() int {
 		}
 		inner = max(inner, lipgloss.Width(groupLabel(p)), pickerRowGutter+lipgloss.Width(name+effort+vision))
 	}
-	return min(inner+frame, m.width-1-minDetailColumns)
+	return min(inner+frame, m.width-right-1)
 }
 
 type detailLayout struct {
-	lines  []string
-	height int
+	lines     []string
+	height    int
+	split     bool
+	listWidth int
+	width     int
 }
 
-func (m model) detailLayout(width int) detailLayout {
-	body := detailsBody(m, width, false)
-	return detailLayout{lines: strings.Split(body, "\n"), height: m.height - 2}
+func (m model) detailLayout() detailLayout {
+	d := detailLayout{height: max(1, m.height-2), split: m.splitPanes(), listWidth: m.pickerWidth(), width: m.width}
+	if d.split {
+		d.width -= d.listWidth + 1
+	}
+	d.lines = strings.Split(detailsBody(m, d.width, false), "\n")
+	return d
 }
 
 func (d detailLayout) pageCount() int {
 	if len(d.lines) <= d.height {
-		return 0
+		if d.split {
+			return 0
+		}
+		return 1
 	}
 	// Repeat the previous page's last line to keep wrapped settings readable.
-	step := d.height - 1
+	step := max(1, d.height-1)
 	return 1 + (len(d.lines)-d.height+step-1)/step
 }
 
-func (m model) detailsPageCount() int {
-	return m.detailLayout(m.width - m.pickerWidth() - 1).pageCount()
+func compactDetails(m model, width, height int) string {
+	body := detailsBody(m, width, true)
+	if lipgloss.Height(body) <= height {
+		return body
+	}
+	p := m.catalog.Profiles[m.cursor]
+	values := profileFacts(p)
+	rows := [][]string{{"API URL", values["API URL"]}, {"Model id", values["Model id"]}, {"Context", values["Context"]}}
+	if len(p.Missing) > 0 {
+		rows = append([][]string{{"Missing", p.Missing[0]}}, rows...)
+	} else if m.err != nil {
+		rows = append([][]string{{"Refresh", "Catalog refresh failed"}}, rows...)
+	}
+	var lines []string
+	for _, row := range rows {
+		if row[1] != "" {
+			accent := magenta
+			switch row[0] {
+			case "Context":
+				accent = green
+			case "Missing", "Refresh":
+				accent = red
+			}
+			line := renderKV(row[0], row[1], width, 8, accent, 2)
+			lines = append(lines, strings.Split(line, "\n")...)
+		}
+	}
+	return strings.Join(lines[:min(len(lines), height)], "\n")
 }
 
 func (m model) View() string {
 	if m.width == 0 || m.height == 0 {
 		return "Loading model catalog..."
 	}
-	if !m.hasRoom() {
-		return fmt.Sprintf("Resize to %d columns × %d rows. Q quits.", minColumns, minRows)
-	}
 	if m.confirming {
 		return renderConfirm(m)
 	}
-
-	listWidth := m.pickerWidth()
-	detailWidth := m.width - listWidth - 1
-	layout := m.detailLayout(detailWidth)
+	header := renderHeader(m)
+	if m.height == 1 {
+		return header
+	}
+	layout := m.detailLayout()
 	pages := layout.pageCount()
 	page := min(m.detailPage, pages)
+	footer := renderFooter(m.width, m.catalog.Profiles, page, pages)
+	if m.height == 2 {
+		return header + "\n" + footer
+	}
 	details := ""
 	switch {
 	case pages == 0:
 		details = strings.Join(layout.lines, "\n")
-	case page == 0:
-		details = detailsBody(m, detailWidth, true)
-	default:
-		start := (page - 1) * (layout.height - 1)
+	case page > 0:
+		start := (page - 1) * max(1, layout.height-1)
 		details = strings.Join(layout.lines[start:min(start+layout.height, len(layout.lines))], "\n")
+	case layout.split:
+		details = compactDetails(m, layout.width, layout.height)
 	}
-	choices := renderProfileList(m, listWidth, layout.height)
-	body := lipgloss.JoinHorizontal(lipgloss.Top, choices, " ", details)
+	body := details
+	if layout.split || page == 0 {
+		body = renderProfileList(m, layout.listWidth, layout.height)
+		if layout.split {
+			body = lipgloss.JoinHorizontal(lipgloss.Top, body, " ", details)
+		}
+	}
 	body += strings.Repeat("\n", max(0, layout.height-lipgloss.Height(body)))
-	footer := renderFooter(m.width, m.catalog.Profiles, page, pages)
-	return strings.Join([]string{renderHeader(m), body, footer}, "\n")
+	return strings.Join([]string{header, body, footer}, "\n")
 }
 
 func main() {

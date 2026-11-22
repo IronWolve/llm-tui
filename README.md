@@ -3,8 +3,9 @@
 This is my reference for how I like my LLM engine start scripts to look and
 feel, whether I run `start.sh` on Linux or `start.ps1` on Windows.
 
-The demo uses fictional profiles. To reuse the picker with an engine, have
-its launcher pass in a resolved model catalog.
+Confirm a profile and the launcher starts the LLM in the background, reports
+readiness and connection details, then returns you to the shell. This repo
+provides the reusable picker and a demo with fictional profiles.
 
 ![LLM TUI at 80 columns by 25 rows with ten example profiles and a vision profile selected](examples/picker-80x25.png)
 
@@ -19,10 +20,11 @@ its launcher pass in a resolved model catalog.
 
 ## Preview
 
-Requires Go 1.25 or newer with the pinned modules already cached, Bash for the
-build helper, and a terminal at least 80 columns by 25 rows. The picker keeps
-the selected profile visible in a long catalog. If the full details need more
-space, use Page Down to open them and Page Up to return to the overview.
+Requires Go 1.25 or newer with the pinned modules already cached and Bash for
+the build helper. The screenshot shows the reference layout at 80 columns by
+25 rows. Shorter terminals show fewer rows at a time. Narrow terminals give
+the picker and profile details the full width in separate views. Use Page Down
+to open extra details and Page Up to return to the picker or overview.
 Linux/WSL is the intended local build environment. Windows is a cross-build
 target (`GOOS=windows GOARCH=amd64 bash build.sh`).
 

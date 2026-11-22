@@ -39,13 +39,19 @@ strings, no ANSI sequences, embedded controls, secrets or executable flags.
 4. Arrow keys (or j/k), Home/End, or digits select; two-digit IDs can be entered
    within 800 ms. Enter opens review, Y/Enter confirms, N/Esc goes back and
    Ctrl-C quits. A direct 0 opens status-only review. R reloads the snapshot.
-   In the compact overview, Page Down opens the full details and Page Up
-   returns from the first page. Changing profiles restores the overview.
+   Page Down opens extra details and Page Up returns from the first page.
+   The picker uses a full-width details view when the panes need more space.
+   Changing profiles restores the picker or overview.
 5. Check successful exit and a valid result against the launcher's current
-   profile data. No result = no action; 0 = read-only status, never proxy/model
-   startup. A nonzero result is a selection, not permission to bypass engine
-   preflight or replace a running server. Keep dry-run, explicit automation
-   consent, log tailing and exact process ownership in the engine adapter.
+   profile data. An empty result ends the launcher. For `0`, report read-only
+   status and exit. For a confirmed profile ID, run the engine preflight and
+   apply the adapter's rules for an already running server.
+6. Start the selected LLM in the background, detached from terminal input,
+   and send its output to the adapter's local log. Report readiness and print
+   client settings when the server is ready, then return control to the shell.
+   On startup failure or timeout, report the state and log path before exiting.
+   The engine stays running independently of the start script. The engine
+   adapter owns the process, dry runs, and consent for automated starts.
 
 Keep the post-launch client block authoritative: API type/base/key requirement
 (never the secret), exact model ID, context/output limits, input types,
@@ -54,8 +60,8 @@ or successful dry run is not a verified boot.
 
 ## Launcher scripts
 
-When wiring the picker into an engine, provide these entry points beside the
-engine's start script. Use the names for the launcher platform.
+Provide these entry points beside the engine's start script so the user can
+check, follow, or stop the engine after the launcher exits.
 
 | Linux / WSL | Windows | Responsibility |
 | --- | --- | --- |

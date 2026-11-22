@@ -58,7 +58,7 @@ opening the picker. Live status metrics are separate and explicitly labeled.
 
 ## Fit And Review
 
-Use 80×25 as the baseline. Hold the columns steady while moving between
+Use 80×25 as the reference layout. Hold the columns steady while moving between
 profiles. Size the left pane to its longest heading or choice when there is
 enough room to keep the details readable. Keep every choice on one row,
 including its ID, effort, and vision marker. Use short variant names when the
@@ -71,13 +71,15 @@ Show all three detail boxes when they fit. When a profile needs more rows,
 keep the same colors in a compact overview with model, quant, HF link,
 context, performance, API URL, and served ID when supplied. Page Down opens
 the full detail pages. Page Up returns to the overview from the first page.
-Keep the profile picker visible on every page. The footer shows the available
+Keep the picker visible beside the details while both panes fit. In a narrower
+or shorter terminal, Page Down opens details across the full width and Page Up
+returns to the picker from the first page. The footer shows the available
 controls and the current detail page.
 
 The review shows the selected ID, exact served ID, context, and effort when
 supplied. Status-only review shows the caller's latest status snapshot.
 
-Verify the widest fields and longest vision variants at 80×25 and a wider
-size. Check the bottom of the purple box, actual comma color, NO_COLOR, exact
-links, and the cancel and status-only handoffs. Use synthetic data or saved
-catalogs for the checks.
+Verify the widest fields and longest vision variants at 80×25, above it, and
+in narrower and shorter terminals. Check the bottom of the purple box,
+actual comma color, NO_COLOR, exact links, and the cancel and status-only
+handoffs. Use synthetic data or saved catalogs for the checks.
