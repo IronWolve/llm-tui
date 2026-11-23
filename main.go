@@ -568,8 +568,12 @@ func profileFacts(p profile) map[string]string {
 
 func renderKV(label, value string, width, labelWidth int, accent lipgloss.Color, limit int) string {
 	valueWidth := width
+	indent := ""
 	if labelWidth > 0 {
 		valueWidth -= labelWidth + 1
+	} else if width >= 16 {
+		indent = "  "
+		valueWidth -= len(indent)
 	}
 	var link string
 	if label == "HF link" && strings.HasPrefix(value, "https://huggingface.co/") && renderer.ColorProfile().Name() != "Ascii" {
@@ -585,7 +589,7 @@ func renderKV(label, value string, width, labelWidth int, accent lipgloss.Color,
 	}
 	lines := wrapLines(value, valueWidth, limit)
 	for i, line := range lines {
-		lines[i] = styledText(valueText, line)
+		lines[i] = indent + styledText(valueText, line)
 		if link != "" {
 			lines[i] = ansi.SetHyperlink(link) + lines[i] + ansi.ResetHyperlink()
 		}
@@ -596,6 +600,13 @@ func renderKV(label, value string, width, labelWidth int, accent lipgloss.Color,
 	return lipgloss.JoinHorizontal(lipgloss.Top, labelStyle.Render(label), " ", strings.Join(lines, "\n"))
 }
 
+func stackedSummaryRow(label string, accent lipgloss.Color, limit int) bool {
+	if accent != green || limit == 0 {
+		return false
+	}
+	return label == "Memory settings" || label == "Bench experts" || label == "Performance"
+}
+
 func section(rows [][]string, width int, accent lipgloss.Color, limit int) string {
 	style := panel.BorderForeground(accent)
 	if width < 19 {
@@ -604,7 +615,8 @@ func section(rows [][]string, width int, accent lipgloss.Color, limit int) strin
 	inner := width - style.GetHorizontalFrameSize()
 	labelWidth := 8
 	for _, row := range rows {
-		if len(row) == 2 && row[1] != "" && row[0] != "Estimated Vram/Ram Usage" {
+		if len(row) == 2 && row[1] != "" && row[0] != "Estimated Vram/Ram Usage" &&
+			!stackedSummaryRow(row[0], accent, limit) {
 			labelWidth = max(labelWidth, lipgloss.Width(row[0]))
 		}
 	}
@@ -624,6 +636,12 @@ func section(rows [][]string, width int, accent lipgloss.Color, limit int) strin
 			lines := wrapLines(row[0]+": "+row[1], inner, limit)
 			lines[0] = strings.Replace(lines[0], row[0]+":", labelStyle.Render(row[0]+":"), 1)
 			content = append(content, strings.Join(lines, "\n"))
+		} else if stackedSummaryRow(row[0], accent, limit) {
+			rowLimit := limit
+			if limit == 2 && row[0] != "Bench experts" {
+				rowLimit = 3
+			}
+			content = append(content, renderKV(row[0], row[1], inner, 0, accent, rowLimit))
 		} else {
 			content = append(content, renderKV(row[0], row[1], inner, labelWidth, accent, limit))
 		}
@@ -662,18 +680,18 @@ func summarySections(p profile) [][][]string {
 	}
 	return [][][]string{
 		{{"Model", values["Model"]}, {"Quant", values["Quant"]}, {"HF link", values["HF link"]}},
-		{{"Context", values["Context"]}, {"Performance", values["Performance"]}},
+		{{"Context", values["Context"]}, {"Memory settings", values["Memory settings"]},
+			{"Bench experts", values["Bench experts"]}, {"Performance", values["Performance"]}},
 		{{"API URL", values["API URL"]}, {"Model id", values["Model id"]}},
 	}
 }
 
-func detailsBody(m model, width int, compact bool) string {
+func detailsBody(m model, width, limit int) string {
 	p := m.catalog.Profiles[m.cursor]
 	sections := p.CompactSections
-	limit := 0
+	compact := limit > 0
 	if compact {
 		sections = summarySections(p)
-		limit = 2
 	} else if len(sections) > 0 && width < 100 {
 		// Keep the projector on the Vision row when the pane is narrow.
 		overview := sections[0]
@@ -905,7 +923,7 @@ func (m model) detailLayout() detailLayout {
 	if d.split {
 		d.width -= d.listWidth + 1
 	}
-	d.lines = strings.Split(detailsBody(m, d.width, false), "\n")
+	d.lines = strings.Split(detailsBody(m, d.width, 0), "\n")
 	return d
 }
 
@@ -922,9 +940,11 @@ func (d detailLayout) pageCount() int {
 }
 
 func compactDetails(m model, width, height int) string {
-	body := detailsBody(m, width, true)
-	if lipgloss.Height(body) <= height {
-		return body
+	for _, limit := range []int{2, 1} {
+		body := detailsBody(m, width, limit)
+		if lipgloss.Height(body) <= height {
+			return body
+		}
 	}
 	p := m.catalog.Profiles[m.cursor]
 	values := profileFacts(p)

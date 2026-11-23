@@ -7,12 +7,13 @@ Confirm a profile and the launcher starts the LLM in the background, reports
 readiness and connection details, then returns you to the shell. This repo
 provides the reusable picker and a demo with fictional profiles.
 
-![LLM TUI at 80 columns by 25 rows with ten example profiles and a vision profile selected](examples/picker-80x25.png)
+![LLM TUI at 80×25 with an expert-offload profile selected, showing Memory settings, Bench experts, and Performance](examples/picker-80x25.png)
 
 - [Layout and measurement rules](LAYOUT.md): the approved visual contract.
 - [Catalog and result protocol](PROTOCOL.md): adapter contract and workflow.
-- [Synthetic example](examples/catalog.json): text-only and vision profiles,
-  draft and no-draft cases, measured and unmeasured performance examples.
+- [Synthetic example](examples/catalog.json): ten profiles covering text,
+  vision, drafting, and expert offload. Profile 7 shows the memory settings
+  alongside example expert placement and benchmark results.
 - [Renderer](main.go): adapted from the approved vLLM Bubble Tea/Lip Gloss UI,
   with the file handoff used by the Windows launcher family. See [go.mod](go.mod)
   and [go.sum](go.sum) for inherited dependency pins. No new license is granted

@@ -41,6 +41,14 @@ measured usage are different facts.
 
 ## Performance
 
+Keep these rows in the green runtime box when the adapter supplies them.
+
+| Row | Content |
+| --- | --- |
+| `Memory settings` | Configured expert RAM cap, startup RAM headroom, VRAM reserve, KV precision and GPU-resident positions, and conversation-cache budget. |
+| `Bench experts` | Measured expert placement across GPU, host RAM, and SSD from the saved benchmark. |
+| `Performance` | Measured decode and prefill rates, time to first token, memory observations, and the benchmark context and sample count. |
+
 Use a green-box `Performance` or `PERF` row.
 Example, synthetic: `68 tok/s decode (61-74), 1.4 s cached TTFT, 49152 input, n=5`.
 Name the metric: decode is not prefill, cached TTFT is not cold TTFT, and neither
@@ -69,8 +77,10 @@ selected ID and its group visible and show the visible range in the picker.
 
 Show all three detail boxes when they fit. When a profile needs more rows,
 keep the same colors in a compact overview with model, quant, HF link,
-context, performance, API URL, and served ID when supplied. Page Down opens
-the full detail pages. Page Up returns to the overview from the first page.
+context, memory settings, benchmark expert placement, performance, API URL,
+and served ID when supplied. Use the runtime box width for longer summary
+rows. Page Down opens the full values and Page Up returns to the overview
+from the first page.
 Keep the picker visible beside the details while both panes fit. In a narrower
 or shorter terminal, Page Down opens details across the full width and Page Up
 returns to the picker from the first page. The footer shows the available

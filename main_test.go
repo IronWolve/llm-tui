@@ -79,6 +79,26 @@ func TestFixtureLayout(t *testing.T) {
 	}
 }
 
+func TestExpertBenchmarkRows(t *testing.T) {
+	c, err := loadCatalog("examples/catalog.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := initialModel(c)
+	m.cursor = indexOfID(c.Profiles, 7)
+	for _, size := range []tea.WindowSizeMsg{{Width: 80, Height: 25}, {Width: 120, Height: 50}} {
+		m.width, m.height = size.Width, size.Height
+		screen := ansi.Strip(m.View())
+		for _, want := range []string{"Memory settings", "4 GiB expert RAM cap", "Bench experts", "GPU 7.2",
+			"Performance", "46 tok/s decode", "API URL", c.Profiles[m.cursor].ServedID} {
+			if !strings.Contains(screen, want) {
+				t.Errorf("%d×%d missing %q:\n%s", m.width, m.height, want, screen)
+			}
+		}
+		assertFits(t, m, screen)
+	}
+}
+
 func TestLargeCatalogPicker(t *testing.T) {
 	c, err := loadCatalog("examples/catalog.json")
 	if err != nil {

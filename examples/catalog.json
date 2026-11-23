@@ -236,7 +236,7 @@
       "served_id": "example-moe-30b-iq3-s-262144-7",
       "group": "MODEL: Example MoE 30B, 262144",
       "group_suffix": "",
-      "badge": "NOT YET BOOTED",
+      "badge": "LOCAL TEST",
       "details": [
         ["Effort", "medium"],
         ["Draft style", "off"],
@@ -255,10 +255,12 @@
         [
           ["Context", "262144, 1 slot"],
           ["VRAM / RAM", "GPU budget 18 GiB, host RAM unmeasured"],
+          ["Memory settings", "4 GiB expert RAM cap, 6 GiB headroom, VRAM reserve 1 GiB, 2 GiB conv. cache, q8_0 KV, 16384 GPU positions"],
           ["Experts", "CPU expert offload configured"],
+          ["Bench experts", "GPU 7.2, RAM 3.9, SSD 1.8 GiB"],
           ["KV cache", "q8_0"],
           ["Runtime", "demo GGUF build"],
-          ["Performance", "unmeasured"]
+          ["Performance", "46 tok/s decode (43–49), n=5 at ~51K, 1.6s warm TTFT, 710 tok/s cold prefill"]
         ],
         [
           ["API URL", "http://127.0.0.1:8080/v1"],
